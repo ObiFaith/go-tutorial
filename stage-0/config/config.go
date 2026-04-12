@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	PORT string
-	MODE string
+	Port string
+	GinMode string
+	GenderizeApi string
 }
 
 func LoadConfig() *Config {
@@ -18,15 +19,8 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		PORT: getEnv("PORT", "8000"),
-		MODE: os.Getenv("GIN_MODE"),
+		Port: os.Getenv("PORT"),
+		GinMode: os.Getenv("GIN_MODE"),
+		GenderizeApi: os.Getenv("GENDERIZE_API"),
 	}
-}
-
-func getEnv(key, fallback string) string {
-	value := os.Getenv(key);
-	if value == ""{
-		return fallback
-	}
-	return  value
 }

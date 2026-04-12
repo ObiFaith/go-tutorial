@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"genderize-api/internal/services"
 
@@ -44,6 +45,7 @@ func ClassifyHandler(ctx *gin.Context) {
 			"probability":  data.Probability,
 			"sample_size":  data.Count,
 			"is_confident": data.Probability >= 0.7 && data.Count >= 100,
+			"processed_at": time.Now().UTC().Format(time.RFC3339),
 		},
 	})
 }

@@ -2,8 +2,10 @@ package services
 
 import (
 	"encoding/json"
+	"genderize-api/config"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -15,7 +17,15 @@ type Data struct {
 }
 
 func FetchGenderData(name string) (Data, error) {
-	req, err := http.NewRequest("GET", "https://api.genderize.io/?name="+name, nil)
+	cfg := config.LoadConfig()
+	genderizeApi, _ := url.Parse(cfg.GenderizeApi)
+
+	params := url.Values{}
+	params.Add("name", name)
+
+	genderizeApi.RawQuery = params.Encode()
+	req, err := http.NewRequest("GET", genderizeApi.String(), nil)
+
 	if err != nil {
 		return Data{}, err
 	}
