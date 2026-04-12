@@ -17,9 +17,7 @@ func main() {
 			gin.SetMode(gin.DebugMode)
 	}
 
-	app := gin.New()
-	app.Use(gin.Logger(), gin.Recovery())
-	routes.RegisterRoutes(app)
+	app := routes.SetupRouter()
 
 	if err := app.Run(":" + cfg.PORT); err != nil {
 		log.Fatal(err)

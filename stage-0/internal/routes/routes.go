@@ -6,16 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Data struct {
-	Count int
-	Name string
-	Gender string
-	Probability float64
-}
+func SetupRouter() *gin.Engine {
+	app := gin.New()
+	app.Use(gin.Logger(), gin.Recovery())
 
-func RegisterRoutes (router *gin.Engine){
-	router.GET("/health", handlers.HealthCheck)
+	app.GET("/health", handlers.HealthCheck)
 
-	api := router.Group("/api")
+	api := app.Group("/api")
 	api.GET("/classify", handlers.ClassifyHandler)
+
+	return app
 }
