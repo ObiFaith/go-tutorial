@@ -21,7 +21,7 @@ func SetupRouter() *gin.Engine {
 	app.GET("/health", handlers.HealthCheck)
 
 	api := app.Group("/api")
-	api.POST("/profiles", handlers.ClassifyHandler)
+	api.POST("/profiles", handlers.CreateProfileHandler)
 
 	return app
 }

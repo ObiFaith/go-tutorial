@@ -9,14 +9,14 @@ import (
 	"time"
 )
 
-type Data struct {
-	Count int
-	Name string
-	Gender string
-	Probability float64
+type GenderResponse struct {
+	Count int	`json:"count"`
+	Name string	`json:"name"`
+	Gender string	`json:"gender"`
+	Probability float64	`json:"probability"`
 }
 
-func FetchGenderData(name string) (Data, error) {
+func FetchGenderResponse(name string) (GenderResponse, error) {
 	cfg := config.LoadConfig()
 	genderizeApi, _ := url.Parse(cfg.GenderizeApi)
 
@@ -27,7 +27,7 @@ func FetchGenderData(name string) (Data, error) {
 	req, err := http.NewRequest("GET", genderizeApi.String(), nil)
 
 	if err != nil {
-		return Data{}, err
+		return GenderResponse{}, err
 	}
 
 	client := &http.Client{
@@ -36,18 +36,18 @@ func FetchGenderData(name string) (Data, error) {
 
 	res, err := client.Do(req)
 	if err != nil {
-		return Data{}, err
+		return GenderResponse{}, err
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return Data{}, err
+		return GenderResponse{}, err
 	}
 
-	var data Data
+	var data GenderResponse
 	if err := json.Unmarshal(body, &data); err != nil {
-		return Data{}, err
+		return GenderResponse{}, err
 	}
 
 	return data, nil
