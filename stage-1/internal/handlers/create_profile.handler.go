@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"genderize-api/internal/models"
 	"genderize-api/internal/services"
 	"genderize-api/internal/utils"
 
@@ -19,20 +20,14 @@ func CreateProfileHandler(ctx *gin.Context) {
 	var profile Profile
 
 	if err := ctx.ShouldBindJSON(&profile); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
-			"message": "invalid JSON payload",
-		})
+		utils.BadRequest(ctx, "invalid JSON payload")
 		return
 	}
 
 	profile.Name = strings.ToLower(strings.TrimSpace(profile.Name))
 
 	if profile.Name == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
-			"message": "name is required",
-		})
+		utils.BadRequest(ctx, "name is required")
 		return
 	}
 
@@ -82,18 +77,17 @@ func CreateProfileHandler(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"status": "success",
-		"data": gin.H{
-			"name":         genderRes.Name,
-			"gender":       genderRes.Gender,
-			"gender_probability":  genderRes.Probability,
-			"sample_size":  genderRes.Count,
-			"age":  ageRes.Age,
-			"age_group": utils.GetAgeGroup(ageRes.Age),
-			"country_id": countryRes.CountryID,
-			"country_probability": countryRes.Probability,
-			"created_at": time.Now().UTC().Format(time.RFC3339),
-		},
-	})
+	response := models.ProfileResponse{
+		Name:               genderRes.Name,
+		Gender:             genderRes.Gender,
+		GenderProbability:  genderRes.Probability,
+		SampleSize:         genderRes.Count,
+		Age:                ageRes.Age,
+		AgeGroup:           utils.AgeGroup(ageRes.Age),
+		CountryID:          countryRes.CountryID,
+		CountryProbability: countryRes.Probability,
+		CreatedAt:          time.Now().UTC().Format(time.RFC3339),
+	}
+
+	utils.CreatedResponse(ctx, response)
 }
