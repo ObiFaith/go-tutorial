@@ -13,6 +13,13 @@ func BadRequest(ctx *gin.Context, message string) {
 	})
 }
 
+func UnprocessableEntity(ctx *gin.Context, message string) {
+	ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+		"status": "error",
+		"message": message,
+	})
+}
+
 func BadGateway(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusBadGateway, gin.H{
 		"status": "error",

@@ -1,13 +1,14 @@
 package routes
 
 import (
-	"genderize-api/internal/handlers"
+	"profile-api/internal/handlers"
+	"profile-api/internal/services"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(profileService *services.ProfileService) *gin.Engine {
 	app := gin.New()
 	app.Use(gin.Logger(), gin.Recovery())
 
@@ -19,9 +20,10 @@ func SetupRouter() *gin.Engine {
 	}))
 
 	app.GET("/health", handlers.HealthCheck)
-
 	api := app.Group("/api")
-	api.POST("/profiles", handlers.CreateProfileHandler)
+
+	profileHandler := handlers.NewProfileHandler(profileService)
+	api.POST("/profiles", profileHandler.CreateProfile)
 
 	return app
 }

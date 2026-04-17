@@ -1,8 +1,8 @@
 package api
 
 import (
-	"genderize-api/internal/routes"
 	"net/http"
+	"profile-api/internal/routes"
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {

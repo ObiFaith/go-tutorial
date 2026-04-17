@@ -1,4 +1,4 @@
-module genderize-api
+module profile-api
 
 go 1.26.1
 

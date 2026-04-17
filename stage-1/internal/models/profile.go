@@ -1,5 +1,9 @@
 package models
 
+type CreateProfileRequest struct {
+	Name string `json:"name" binding:"required"`
+}
+
 type ProfileResponse struct {
 	Name               string  `json:"name"`
 	Gender             string  `json:"gender"`

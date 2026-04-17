@@ -1,162 +1,51 @@
-# Name Classification API (Genderize Wrapper)
+## Task
 
-A lightweight service that classifies a given name using the **Genderize API**, applies additional business rules, and returns a structured and consistent response.
+Build a POST endpoint at /api/profiles that accepts a name, calls three external APIs (Genderize, Agify, Nationalize), aggregates the responses, applies classification logic, and stores the result in a database.
 
----
+## Processing rules:
 
-## 📌 Overview
+Call all three APIs using the provided name and aggregate the responses
 
-This API accepts a name as input, queries the external Genderize service, processes the response, and returns a normalized classification result with confidence scoring and metadata.
+- Extract gender, gender_probability, and count from Genderize. Rename count to sample_size
+- Extract age from Agify. Classify age_group: 0–12 → child, 13–19 → teenager, 20–59 → adult, 60+ → senior
+- Extract country list from Nationalize. Pick the country with the highest probability as country_id
+- Store the processed result with a UUID v7 id and UTC created_at timestamp
 
----
+**Idempotency**: if the same name is submitted more than once, do not create a new record. Return the existing one with "message": "Profile already exists".
 
-## 🚀 Endpoint
+## Input validation:
 
-### Classify Name
+- Missing or empty name returns 400 Bad Request
+- Non-string name returns 422 Unprocessable Entity
 
-```
-GET /api/classify?name={name}
-```
+## Edge cases:
 
----
+- Genderize returns gender: null or count: 0 → return error, do not store
+- Agify returns age: null → return error, do not store
+- Nationalize returns no country data → return error, do not store
 
-## 📥 Query Parameters
+### All errors follow this structure:
 
-| Parameter | Type   | Required | Description      |
-| --------- | ------ | -------- | ---------------- |
-| name      | string | Yes      | Name to classify |
+`{ "status": "error", "message": "<error message>" }`
 
----
+Status codes: 400, 422, 404, 500/502 where appropriate. CORS header: Access-Control-Allow-Origin: \*. Without this, the grading script cannot reach your server. All timestamps in UTC ISO 8601. All IDs in UUID v7. Response structure must match exactly.
 
-## 📤 Success Response (200 OK)
+## Expected response format:
 
 ```json
 {
   "status": "success",
   "data": {
-    "name": "john",
-    "gender": "male",
-    "probability": 0.99,
+    "id": "b3f9c1e2-7d4a-4c91-9c2a-1f0a8e5b6d12",
+    "name": "ella",
+    "gender": "female",
+    "gender_probability": 0.99,
     "sample_size": 1234,
-    "is_confident": true,
-    "processed_at": "2026-04-01T12:00:00Z"
+    "age": 46,
+    "age_group": "adult",
+    "country_id": "DRC",
+    "country_probability": 0.85,
+    "created_at": "2026-04-01T12:00:00Z"
   }
 }
 ```
-
----
-
-## ⚙️ Processing Rules
-
-#### Field Mapping
-
-- Extract: `gender`, `probability`
-- Rename: `count → sample_size`
-
----
-
-#### Confidence Rule
-
-`is_confident = true` if:
-
-- probability >= 0.7
-- sample_size >= 100
-
-> Both conditions must be met.
-
----
-
-#### Timestamp Rule
-
-`processed_at` = current UTC time in ISO 8601 format
-
-**Example**:
-2026-04-01T12:00:00Z
-
-> Must be generated dynamically per request.
-
----
-
-## ❌ Error Handling
-
-All errors follow:
-
-```json
-{ "status": "error", "message": "<error message>" }
-```
-
----
-
-#### 400 Bad Request
-
-Missing or empty name parameter
-
-```json
-{
-  "status": "error",
-  "message": "name query parameter is required"
-}
-```
-
----
-
-#### 422 Unprocessable Entity
-
-Invalid type for name
-
-```json
-{
-  "status": "error",
-  "message": "name must be a string"
-}
-```
-
----
-
-#### 500 / 502
-
-Upstream or server failure
-
-```json
-{
-  "status": "error",
-  "message": "upstream service error"
-}
-```
-
----
-
-## ⚠️ Edge Case Handling
-
-If Genderize returns:
-
-- gender: null OR
-- count: 0
-
-**Return**:
-
-```json
-{
-  "status": "error",
-  "message": "No prediction available for the provided name"
-}
-```
-
----
-
-## 🧪 Example Request
-
-```
-curl "http://localhost:8080/api/classify?name=john"
-```
-
----
-
-## 🧾 Summary Logic
-
-1. Validate input
-2. Call Genderize API
-3. Transform response
-4. Apply confidence rules
-5. Attach processed_at timestamp
-6. Return structured output
