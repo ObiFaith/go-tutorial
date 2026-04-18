@@ -2,12 +2,14 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"profile-api/internal/clients"
 	"profile-api/internal/dtos"
 	"profile-api/internal/mappers"
 	"profile-api/internal/models"
 	"profile-api/internal/utils"
+	"strings"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -26,13 +28,15 @@ func NewProfileService(client *clients.Client, database  *gorm.DB) *ProfileServi
 	}
 }
 
-func (s *ProfileService) CreateProfile(ctx context.Context, name string) (*dtos.ProfileResponse, error) {
+func (s *ProfileService) CreateProfile(ctx context.Context, reqName string) (*dtos.ProfileResponse, error) {
 	var existing models.Profile
+	name := strings.ToLower(reqName)
 
 	err := s.database.WithContext(ctx).Where("name = ?", name).First(&existing).Error
 
 	if err == nil {
-		return mappers.ToProfileResponse(existing), nil
+		resp := mappers.ToProfileResponse(existing)
+		return &resp, nil
 	}
 
 	var (
@@ -79,7 +83,7 @@ func (s *ProfileService) CreateProfile(ctx context.Context, name string) (*dtos.
 	}
 
 	profile := models.Profile{
-		Name:               gender.Name,
+		Name:               name,
 		Gender:             gender.Gender,
 		GenderProbability:  gender.Probability,
 		SampleSize:         gender.Count,
@@ -96,9 +100,67 @@ func (s *ProfileService) CreateProfile(ctx context.Context, name string) (*dtos.
 		return nil, fmt.Errorf("Failed to create profile: %w", err)
 	}
 
-	return mappers.ToProfileResponse(profile), nil
+	resp := mappers.ToProfileResponse(profile)
+	return &resp, nil
 }
 
-// func (s *ProfileService) GetProfile(ctx context.Context, name string) (*dtos.ProfileResponse, error){
-	
-// }
+func (s *ProfileService) GetProfiles(ctx context.Context, f dtos.ProfileFilter) ([]dtos.ProfileResponse, error){
+	query := s.database.WithContext(ctx).Model(&models.Profile{})
+
+	if f.Gender != "" {
+		query = query.Where("LOWER(gender) = ?", f.Gender)
+	}
+
+	if f.CountryID != "" {
+		query = query.Where("UPPER(country_id) = ?", f.CountryID)
+	}
+
+	if f.AgeGroup != "" {
+		query = query.Where("LOWER(age_group) = ?", f.AgeGroup)
+	}
+
+	var profiles []models.Profile
+
+	if err := query.Find(&profiles).Error; err != nil {
+		return nil, err
+	}
+
+	return mappers.ToProfileResponseList(profiles), nil
+}
+
+func (s *ProfileService) GetProfile(ctx context.Context, id string) (*dtos.ProfileResponse, error) {
+	var existing models.Profile
+
+	err := s.database.WithContext(ctx).
+		Where("id = ?", id).
+		First(&existing).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("profile not found")
+		}
+		return nil, err
+	}
+
+	resp := mappers.ToProfileResponse(existing)
+	return &resp, nil
+}
+
+func (s *ProfileService) DeleteProfile(ctx context.Context, id string) error{
+	var existing models.Profile
+
+	err := s.database.WithContext(ctx).Where("id = ?", id).First(&existing).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound){
+			return fmt.Errorf("Profile not found")
+		}
+		return err
+	}
+
+	if err := s.database.WithContext(ctx).Delete(&existing).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

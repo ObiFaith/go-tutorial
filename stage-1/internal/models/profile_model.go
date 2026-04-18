@@ -1,7 +1,5 @@
 package models
 
-import "gorm.io/gorm"
-
 type Profile struct {
 	BaseModel
 
@@ -13,5 +11,4 @@ type Profile struct {
 	CountryID          string  				`json:"country_id"`
 	GenderProbability  float64 				`gorm:"not null;check:gender_probability >= 0 AND gender_probability <= 1"`
 	CountryProbability float64 				`gorm:"not null;check:country_probability >= 0 AND country_probability <= 1"`
-	DeletedAt 				 gorm.DeletedAt `gorm:"index"`
 }

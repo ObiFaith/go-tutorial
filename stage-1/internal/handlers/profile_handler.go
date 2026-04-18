@@ -4,6 +4,7 @@ import (
 	"profile-api/internal/dtos"
 	"profile-api/internal/services"
 	"profile-api/internal/utils"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,4 +37,58 @@ func (h *ProfileHandler) CreateProfile(ctx *gin.Context) {
 	}
 
 	utils.CreatedResponse(ctx, profile)
+}
+
+func (h *ProfileHandler) GetProfiles(ctx *gin.Context) {
+	gender := strings.ToLower(ctx.Query("gender"))
+	countryID := strings.ToUpper(ctx.Query("country_id"))
+	ageGroup := strings.ToLower(ctx.Query("age_group"))
+
+	filters := dtos.ProfileFilter{
+		Gender:    gender,
+		CountryID: countryID,
+		AgeGroup:  ageGroup,
+	}
+
+	profiles, err := h.service.GetProfiles(ctx.Request.Context(), filters)
+	if err != nil {
+		utils.InternalServerError(ctx, err.Error())
+		return
+	}
+
+	utils.OKResponse(ctx, profiles)
+}
+
+func (h *ProfileHandler) GetProfile(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	if id == "" {
+		utils.BadRequest(ctx, "Missing id parameter")
+		return
+	}
+
+	profile, err := h.service.GetProfile(ctx.Request.Context(), id)
+	if err != nil {
+		utils.NotFound(ctx, err.Error())
+		return
+	}
+
+	utils.OKResponse(ctx, profile)
+}
+
+func (h *ProfileHandler) DeleteProfile(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	if id == "" {
+		utils.BadRequest(ctx, "Missing id parameter")
+		return
+	}
+
+	err := h.service.DeleteProfile(ctx.Request.Context(), id)
+	if err != nil {
+		utils.NotFound(ctx, err.Error())
+		return
+	}
+
+	utils.NoContent(ctx)
 }

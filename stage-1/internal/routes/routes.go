@@ -23,7 +23,10 @@ func SetupRouter(profileService *services.ProfileService) *gin.Engine {
 	api := app.Group("/api")
 
 	profileHandler := handlers.NewProfileHandler(profileService)
+	api.GET("/profiles", profileHandler.GetProfiles)
+	api.GET("/profiles/:id", profileHandler.GetProfile)
 	api.POST("/profiles", profileHandler.CreateProfile)
+	api.DELETE("/profiles/:id", profileHandler.DeleteProfile)
 
 	return app
 }

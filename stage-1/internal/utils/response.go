@@ -27,11 +27,22 @@ func BadGateway(ctx *gin.Context, message string) {
 	})
 }
 
+func InternalServerError(ctx *gin.Context, message string) {
+	ctx.JSON(http.StatusInternalServerError, gin.H{
+		"status": "error",
+		"message": message,
+	})
+}
+
 func NotFound(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusNotFound, gin.H{
 		"status": "error",
 		"message": message,
 	})
+}
+
+func NoContent(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
 }
 
 
