@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"profile-api/internal/models"
+	"profile-api/internal/dtos"
 	"profile-api/internal/services"
 	"profile-api/internal/utils"
 
@@ -17,7 +17,7 @@ func NewProfileHandler(service *services.ProfileService) *ProfileHandler {
 }
 
 func (h *ProfileHandler) CreateProfile(ctx *gin.Context) {
-	var req models.CreateProfileRequest
+	var req dtos.CreateProfileRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(ctx, "Missing or empty name parameter")

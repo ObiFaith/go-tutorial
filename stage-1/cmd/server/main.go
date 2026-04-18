@@ -4,6 +4,7 @@ import (
 	"log"
 	"profile-api/config"
 	"profile-api/internal/clients"
+	"profile-api/internal/database"
 	"profile-api/internal/routes"
 	"profile-api/internal/services"
 
@@ -19,13 +20,16 @@ func main() {
 		gin.SetMode(gin.DebugMode)
 	}
 
+	database.Connect(cfg.DatabaseUrl)
+	database.Migrate()
+
 	client := &clients.Client{
 		GenderizeUrl:   cfg.GenderizeApi,
 		AgifyUrl:       cfg.AgifyApi,
 		NationalizeUrl: cfg.NationalizeApi,
 	}
 
-	profileService := services.NewProfileService(client)
+	profileService := services.NewProfileService(client, database.DB)
 
 	app := routes.SetupRouter(profileService)
 

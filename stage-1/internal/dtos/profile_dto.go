@@ -1,10 +1,13 @@
-package models
+package dtos
+
+import "github.com/google/uuid"
 
 type CreateProfileRequest struct {
 	Name string `json:"name" binding:"required"`
 }
 
 type ProfileResponse struct {
+	Id              	 uuid.UUID  	 `json:"id"`
 	Name               string  `json:"name"`
 	Gender             string  `json:"gender"`
 	GenderProbability  float64 `json:"gender_probability"`

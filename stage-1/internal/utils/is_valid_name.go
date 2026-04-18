@@ -6,6 +6,6 @@ import (
 )
 
 func IsValidName(name string) bool {
-	matched, _ := regexp.MatchString(`^[a-zA-Z]+$`, strings.ToLower(strings.TrimSpace(name)))
+	matched, _ := regexp.MatchString(`^[a-zA-Z]+$`, strings.TrimSpace(name))
 	return matched
 }

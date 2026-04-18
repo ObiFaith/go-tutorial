@@ -12,6 +12,7 @@ type Config struct {
 	Port string
 	GinMode string
 	AgifyApi string
+	DatabaseUrl string
 	GenderizeApi string
 	NationalizeApi string
   AllowedOrigins []string
@@ -28,6 +29,7 @@ func LoadConfig() *Config {
 		Port: os.Getenv("PORT"),
 		GinMode: os.Getenv("GIN_MODE"),
 		AgifyApi: os.Getenv("AGIFY_API"),
+		DatabaseUrl: os.Getenv("DATABASE_URL"),
 		GenderizeApi: os.Getenv("GENDERIZE_API"),
 		AllowedOrigins: strings.Split(origins, ","),
 		NationalizeApi: os.Getenv("NATIONALIZE_API"),
