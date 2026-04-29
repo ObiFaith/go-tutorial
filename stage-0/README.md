@@ -1,34 +1,26 @@
 # Name Classification API (Genderize Wrapper)
 
-A lightweight service that classifies a given name using the **Genderize API**, applies additional business rules, and returns a structured and consistent response.
+A lightweight service that classifies a given name using the [Genderize API](https://api.genderize.io), applies additional business rules, and returns a structured and consistent response.
 
----
-
-## 📌 Overview
+## Overview
 
 This API accepts a name as input, queries the external Genderize service, processes the response, and returns a normalized classification result with confidence scoring and metadata.
 
----
-
-## 🚀 Endpoint
+## Endpoint
 
 ### Classify Name
 
-```
+```bash
 GET /api/classify?name={name}
 ```
 
----
-
-## 📥 Query Parameters
+## Query Parameters
 
 | Parameter | Type   | Required | Description      |
 | --------- | ------ | -------- | ---------------- |
 | name      | string | Yes      | Name to classify |
 
----
-
-## 📤 Success Response (200 OK)
+## Success Response (200 OK)
 
 ```json
 {
@@ -44,16 +36,12 @@ GET /api/classify?name={name}
 }
 ```
 
----
-
-## ⚙️ Processing Rules
+## Processing Rules
 
 #### Field Mapping
 
 - Extract: `gender`, `probability`
 - Rename: `count → sample_size`
-
----
 
 #### Confidence Rule
 
@@ -64,8 +52,6 @@ GET /api/classify?name={name}
 
 > Both conditions must be met.
 
----
-
 #### Timestamp Rule
 
 `processed_at` = current UTC time in ISO 8601 format
@@ -75,17 +61,13 @@ GET /api/classify?name={name}
 
 > Must be generated dynamically per request.
 
----
-
-## ❌ Error Handling
+## Error Handling
 
 All errors follow:
 
 ```json
 { "status": "error", "message": "<error message>" }
 ```
-
----
 
 #### 400 Bad Request
 
@@ -98,8 +80,6 @@ Missing or empty name parameter
 }
 ```
 
----
-
 #### 422 Unprocessable Entity
 
 Invalid type for name
@@ -110,8 +90,6 @@ Invalid type for name
   "message": "name must be a string"
 }
 ```
-
----
 
 #### 500 / 502
 
@@ -124,9 +102,7 @@ Upstream or server failure
 }
 ```
 
----
-
-## ⚠️ Edge Case Handling
+## Edge Case Handling
 
 If Genderize returns:
 
@@ -142,17 +118,13 @@ If Genderize returns:
 }
 ```
 
----
+## Example Request
 
-## 🧪 Example Request
-
-```
-curl "http://localhost:8080/api/classify?name=john"
+```bash
+curl "https://go-tutorial-eight.vercel.app/api/classify?name=john"
 ```
 
----
-
-## 🧾 Summary Logic
+## Summary Logic
 
 1. Validate input
 2. Call Genderize API

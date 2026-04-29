@@ -14,14 +14,13 @@ var router http.Handler
 func init() {
 	cfg := config.LoadConfig()
 
+	database.Connect(cfg.DatabaseUrl)
+
 	client := &clients.Client{
 		GenderizeUrl:   cfg.GenderizeApi,
 		AgifyUrl:       cfg.AgifyApi,
 		NationalizeUrl: cfg.NationalizeApi,
 	}
-
-	database.Connect(cfg.DatabaseUrl)
-	database.Migrate()
 
 	profileService := services.NewProfileService(client, database.DB)
 	router = routes.SetupRouter(profileService)
