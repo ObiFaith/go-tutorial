@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"profile-api/config"
 	"profile-api/internal/clients"
+	"profile-api/internal/database"
 	"profile-api/internal/routes"
 	"profile-api/internal/services"
 )
@@ -19,7 +20,10 @@ func init() {
 		NationalizeUrl: cfg.NationalizeApi,
 	}
 
-	profileService := services.NewProfileService(client)
+	database.Connect(cfg.DatabaseUrl)
+	database.Migrate()
+
+	profileService := services.NewProfileService(client, database.DB)
 	router = routes.SetupRouter(profileService)
 }
 
