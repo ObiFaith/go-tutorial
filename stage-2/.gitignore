@@ -1,0 +1,31 @@
+# Binaries
+/bin/
+/dist/
+/build/
+*.exe
+
+# Go test output
+*.out
+
+# Environment files
+.env
+
+# Dependency files
+vendor/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Swagger generated docs (optional if you regenerate)
+docs/
+
+# Coverage
+coverage.out
