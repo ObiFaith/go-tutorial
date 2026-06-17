@@ -2,10 +2,13 @@ package routes
 
 import (
 	"genderize-api/config"
+	"genderize-api/docs"
 	"genderize-api/internal/handlers"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func SetupRouter() *gin.Engine {
@@ -21,10 +24,13 @@ func SetupRouter() *gin.Engine {
 		AllowCredentials: false, // TODO: change to true with strict origin
 	}))
 
-	app.GET("/health", handlers.HealthCheck)
+	// Swagger documentation
+	docs.SwaggerInfo.BasePath = "/api"
+	app.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := app.Group("/api")
 	api.GET("/classify", handlers.ClassifyHandler)
+	api.GET("/health", handlers.HealthCheck)
 
 	return app
 }
