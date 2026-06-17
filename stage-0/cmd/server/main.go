@@ -12,9 +12,9 @@ func main() {
 	cfg := config.LoadConfig()
 
 	if cfg.GinMode == "release" {
-    gin.SetMode(gin.ReleaseMode)
+		gin.SetMode(gin.ReleaseMode)
 	} else {
-			gin.SetMode(gin.DebugMode)
+		gin.SetMode(gin.DebugMode)
 	}
 
 	app := routes.SetupRouter()

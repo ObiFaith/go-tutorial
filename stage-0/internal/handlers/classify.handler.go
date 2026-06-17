@@ -20,7 +20,7 @@ func ClassifyHandler(ctx *gin.Context) {
 		return
 	}
 
-	data, err := services.FetchGenderData(name)
+	data, err := services.FetchGenderData(ctx.Request.Context(), name)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"status":  "error",
@@ -29,7 +29,7 @@ func ClassifyHandler(ctx *gin.Context) {
 		return
 	}
 
-	if (data.Gender == "" || data.Count == 0){
+	if data.Gender == "" || data.Count == 0 {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"status":  "error",
 			"message": "No prediction available for the provided name",
